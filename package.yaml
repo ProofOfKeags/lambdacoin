@@ -21,8 +21,12 @@ description:         Please see the README on Github at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
+- basement
 - bytestring
+- cryptonite
 - network
+- time
+- unordered-containers
 
 library:
   source-dirs: src
@@ -30,7 +34,7 @@ library:
 executables:
   lambdacoin-exe:
     main:                Main.hs
-    source-dirs:         app
+    source-dirs:         exe
     ghc-options:
     - -threaded
     - -rtsopts

@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 9316a584e665d66a519919b703397634c8b45dcff0476c68c92c1160e06c2cf8
+-- hash: 2ca48a684a0863112c0d23322383fc68b3423b5107e8aa00a066248ae2096fca
 
 name:           lambdacoin
 version:        0.1.0.0
@@ -30,14 +30,22 @@ library
       src
   build-depends:
       base >=4.7 && <5
-    , basement
+    , basement >=0.0.7
     , bytestring
+    , cereal
     , cryptonite
+    , foundation
+    , hashable
+    , memory
     , network
     , time
     , unordered-containers
   exposed-modules:
+      LambdaCoin.Hash
+      LambdaCoin.Keys
       LambdaCoin.Node
+      LambdaCoin.Rules
+      Orphans.Word256
   other-modules:
       Paths_lambdacoin
   default-language: Haskell2010
@@ -46,13 +54,17 @@ executable lambdacoin-exe
   main-is: Main.hs
   hs-source-dirs:
       exe
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -fdefer-typed-holes
   build-depends:
       base >=4.7 && <5
-    , basement
+    , basement >=0.0.7
     , bytestring
+    , cereal
     , cryptonite
+    , foundation
+    , hashable
     , lambdacoin
+    , memory
     , network
     , time
     , unordered-containers
@@ -68,10 +80,14 @@ test-suite lambdacoin-test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
-    , basement
+    , basement >=0.0.7
     , bytestring
+    , cereal
     , cryptonite
+    , foundation
+    , hashable
     , lambdacoin
+    , memory
     , network
     , time
     , unordered-containers

@@ -21,9 +21,13 @@ description:         Please see the README on Github at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
-- basement
+- basement >= 0.0.7
 - bytestring
+- cereal
 - cryptonite
+- foundation
+- hashable
+- memory
 - network
 - time
 - unordered-containers
@@ -39,6 +43,7 @@ executables:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+    - -fdefer-typed-holes
     dependencies:
     - lambdacoin
 

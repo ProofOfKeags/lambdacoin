@@ -3,11 +3,15 @@ module LambdaCoin.Node where
 import           Basement.Types.Word256
 import           Crypto.Hash
 import           Crypto.Hash.Algorithms
-import           Crypto.PubKey.ECC.ECDSA (Signature)
+import qualified Data.ByteArray as BA
+import           Data.ByteString (ByteString)
+import qualified Data.HashMap.Strict as HM
 import qualified Data.HashSet as HS
+import           Data.Hashable
 import           Data.Time
 import           Data.Word
 import           Network.Socket (Socket, SockAddr)
+import LambdaCoin.Keys
 
 data BlockChain = BlockChain 
     { uncles :: [Fork]
@@ -38,11 +42,16 @@ data UTXO = UTXO
     , dest :: PubKeyHash
     , value :: Value
     }
+    deriving (Eq)
+
+instance Hashable UTXO where
+    hashWithSalt i u = hashWithSalt i ((BA.convert $ txid u :: ByteString), idx u)
 
 data Transaction = Tx
-    { inputs :: [(UTXO, Signature)]
+    { inputs :: [(UTXO, (PublicKey, Signature))]
     , outputs :: [UTXO]
     }
+    | Coinbase UTXO
 
 data Peer = Peer
     { host :: SockAddr
@@ -51,6 +60,10 @@ data Peer = Peer
 
 data Msg = NewTx Transaction
          | NewBlock Block
+         | GetBlock BlockHash
+         | GetCurrentBlock
+         | GetPeers
+         | SendPeers [Peer]
 
 data Node = Node
     { chain :: BlockChain

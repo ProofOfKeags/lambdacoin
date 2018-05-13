@@ -1,6 +1,7 @@
 module LambdaCoin.Block where
 
 import Crypto.Hash
+import Data.Serialize
 import Data.Time
 import Data.Word
 
@@ -16,9 +17,16 @@ data BlockHeader = BlockHeader
     , nonce :: Word32
     }
 
-
 data Block = Block
     { blockhash :: BlockHash
     , header :: BlockHeader
     , txs :: [Transaction]
     }
+
+instance Serialize Block where
+    put = _
+    get = _
+
+instance Serialize BlockHeader where
+    put = _
+    get = _

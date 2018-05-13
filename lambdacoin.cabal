@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3366c8bded8ebc9544241ec947b89b56da4f30ad30617bb4add0a442411606fa
+-- hash: 1f4f500c62ba6efdaf87cc38dac28d406289652b8019b88f27be857063f0a42b
 
 name:           lambdacoin
 version:        0.1.0.0
@@ -37,10 +37,12 @@ library
     , foundation
     , hashable
     , memory
+    , mtl
     , network
     , time
     , unordered-containers
   exposed-modules:
+      LambdaCoin.Block
       LambdaCoin.Hash
       LambdaCoin.Keys
       LambdaCoin.Node
@@ -66,6 +68,7 @@ executable lambdacoin-exe
     , hashable
     , lambdacoin
     , memory
+    , mtl
     , network
     , time
     , unordered-containers
@@ -89,6 +92,7 @@ test-suite lambdacoin-test
     , hashable
     , lambdacoin
     , memory
+    , mtl
     , network
     , time
     , unordered-containers

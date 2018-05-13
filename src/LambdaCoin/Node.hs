@@ -4,17 +4,19 @@ import           Basement.Types.Word256
 import qualified Data.HashSet as HS
 import           Data.Word
 import           Network.Socket (Socket, SockAddr)
-import LambdaCoin.Transaction
-import LambdaCoin.Block
 
-data BlockChain = BlockChain 
-    { uncles :: [Fork]
-    , longest :: Fork
-    }
+import LambdaCoin.Block
+import LambdaCoin.Transaction
+
 
 data Fork = Fork
     { height :: Word32
     , blocks :: [Block]
+    }
+
+data BlockChain = BlockChain 
+    { uncles :: [Fork]
+    , longest :: Fork
     }
 
 data Peer = Peer

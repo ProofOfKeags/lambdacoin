@@ -28,6 +28,7 @@ dependencies:
 - foundation
 - hashable
 - memory
+- mtl
 - network
 - time
 - unordered-containers

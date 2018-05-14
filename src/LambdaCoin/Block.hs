@@ -1,14 +1,23 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module LambdaCoin.Block where
 
 import Crypto.Hash
+import qualified Data.ByteArray as BA
+import Data.ByteString (ByteString)
+import Data.Hashable
 import Data.Serialize
 import Data.Time
 import Data.Word
 
 import LambdaCoin.Transaction
 
-type BlockHash = Digest SHA256
-type MerkleRoot = Digest SHA256
+newtype BlockHash = BlockHash (Digest SHA256)
+    deriving (Eq, BA.ByteArrayAccess)
+instance Hashable BlockHash where
+    hashWithSalt i bh = hashWithSalt i (BA.convert bh :: ByteString) 
+
+newtype MerkleRoot = MerkleRoot (Digest SHA256)
+    deriving (Eq, BA.ByteArrayAccess)
 
 data BlockHeader = BlockHeader
     { prev :: BlockHash
@@ -20,7 +29,8 @@ data BlockHeader = BlockHeader
 data Block = Block
     { blockhash :: BlockHash
     , header :: BlockHeader
-    , txs :: [Transaction]
+    , coinbaseTx :: Transaction
+    , standardTxs :: [Transaction]
     }
 
 instance Serialize Block where

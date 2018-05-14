@@ -1,6 +1,7 @@
 module LambdaCoin.Node where
 
 import           Basement.Types.Word256
+import qualified Data.HashMap.Strict as HM
 import qualified Data.HashSet as HS
 import           Data.Word
 import           Network.Socket (Socket, SockAddr)
@@ -8,15 +9,9 @@ import           Network.Socket (Socket, SockAddr)
 import LambdaCoin.Block
 import LambdaCoin.Transaction
 
-
-data Fork = Fork
-    { height :: Word32
-    , blocks :: [Block]
-    }
-
 data BlockChain = BlockChain 
-    { uncles :: [Fork]
-    , longest :: Fork
+    { blocks :: HM.HashMap BlockHash (Word32, Word256, BlockHash)
+    , tip :: BlockHash
     }
 
 data Peer = Peer
@@ -35,6 +30,6 @@ data Node = Node
     { chain :: BlockChain
     , peers :: [Peer]
     , utxos :: HS.HashSet UTXO
-    , mempool :: [Transaction]
+    , mempool :: HS.HashSet Transaction
     , difficulty :: Word256
     }

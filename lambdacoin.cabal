@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 1f4f500c62ba6efdaf87cc38dac28d406289652b8019b88f27be857063f0a42b
+-- hash: cd8256149178c7d4590c043d9812079965b3e097a3ab3cc0be345dfa7e8878c0
 
 name:           lambdacoin
 version:        0.1.0.0
@@ -45,6 +45,7 @@ library
       LambdaCoin.Block
       LambdaCoin.Hash
       LambdaCoin.Keys
+      LambdaCoin.MerkleTree
       LambdaCoin.Node
       LambdaCoin.Rules
       LambdaCoin.Transaction

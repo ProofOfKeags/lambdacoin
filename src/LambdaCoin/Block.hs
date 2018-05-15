@@ -21,7 +21,7 @@ newtype MerkleRoot = MerkleRoot (Digest SHA256)
 
 data BlockHeader = BlockHeader
     { prev :: BlockHash
-    , merkleRoot :: MerkleRoot
+    , commitmentHash :: Digest SHA256
     , timestamp :: UTCTime
     , nonce :: Word32
     }

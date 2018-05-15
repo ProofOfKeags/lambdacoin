@@ -28,7 +28,13 @@ noDuplicateInputs :: Rule Transaction
 noDuplicateInputs node tx = 
     HS.size set == (length $ inputs tx)
     where
-        set = HS.fromList . fmap fst $ inputs tx
+        set = HS.fromList . fst <$> inputs tx
+
+noDuplicateOutputIndices :: Rule Transaction
+noDuplicateOutputIndices _ tx =
+    HS.size set == (length $ outputs tx)
+    where
+        set = HS.fromList . idx <$> outputs tx
 
 atLeastOneInput :: Rule Transaction
 atLeastOneInput _ tx = not . null $ inputs tx

@@ -4,6 +4,7 @@ import           Crypto.Hash
 import qualified Data.ByteArray as BA
 import           Data.ByteString (ByteString)
 import           Data.Hashable
+import           Data.Serialize
 import           Data.Word
 
 import LambdaCoin.Keys
@@ -28,3 +29,7 @@ data Transaction = Transaction
     { inputs :: [(UTXO, (PublicKey, Signature))]
     , outputs :: [UTXO]
     }
+
+instance Serialize Transaction where
+    put = _
+    get = _

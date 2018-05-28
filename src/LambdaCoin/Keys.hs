@@ -22,8 +22,10 @@ import           Orphans.Word256 ()
 import LambdaCoin.Hash
 
 data PublicKey = PublicKey Word256 Word256
+    deriving (Eq, Show)
 data PrivateKey = PrivateKey Word256
 data Signature = Signature Word256 Word256
+    deriving (Eq, Show)
 
 curve :: CN.Curve
 curve = CN.getCurveByName CN.SEC_p256k1

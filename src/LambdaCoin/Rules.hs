@@ -22,45 +22,47 @@ inputsSpendable :: Rule Transaction
 inputsSpendable node tx = all inSet ins
     where
         inSet = flip HS.member $ utxos node
-        ins = fst <$> inputs tx
+        ins = fst <$> sInputs tx
 
 noDuplicateInputs :: Rule Transaction
 noDuplicateInputs node tx = 
-    HS.size set == (length $ inputs tx)
+    HS.size set == length inputs
     where
-        set = HS.fromList . fst <$> inputs tx
+        inputs = sInputs tx
+        set = HS.fromList $ fst <$> inputs
 
 noDuplicateOutputIndices :: Rule Transaction
 noDuplicateOutputIndices _ tx =
-    HS.size set == (length $ outputs tx)
+    HS.size set == length outputs
     where
-        set = HS.fromList . idx <$> outputs tx
+        outputs = sOutputs tx
+        set = HS.fromList $ idx <$> outputs
 
 atLeastOneInput :: Rule Transaction
-atLeastOneInput _ tx = not . null $ inputs tx
+atLeastOneInput _ tx = not . null $ sInputs tx
 
 noInputs :: Rule Transaction
-noInputs _ = null . inputs
+noInputs _ = null . sInputs
 
 atLeastOneOutput :: Rule Transaction
-atLeastOneOutput _ tx = not . null $ outputs tx
+atLeastOneOutput _ tx = not . null $ sOutputs tx
 
 inputsExceedOutputs :: Rule Transaction
-inputsExceedOutputs _ tx = (sum $ value . fst <$> ins) >= (sum $ value <$> outs)
+inputsExceedOutputs _ tx = (sum $ value . output . fst <$> ins) >= (sum $ value <$> outs)
     where
-        ins = inputs tx
-        outs = outputs tx
+        ins = sInputs tx
+        outs = sOutputs tx
 
 pubkeysMatchHashes :: Rule Transaction
-pubkeysMatchHashes _ tx = all pubkeyMatchesHash $ inputs tx
+pubkeysMatchHashes _ tx = all pubkeyMatchesHash $ sInputs tx
     where
-        pubkeyMatchesHash (utxo, (pk, _)) = hash160 (encode pk) == dest utxo
+        pubkeyMatchesHash (utxo, (pk, _)) = pubKeyHash pk == dest (output utxo)
 
 signaturesAreValid :: Rule Transaction
-signaturesAreValid _ tx = all validSig $ inputs tx
+signaturesAreValid _ tx = all validSig $ sInputs tx
     where
         validSig (utxo, (pk, sig)) = 
-            let output = BA.convert (txid utxo) <> encode (idx utxo)
+            let output = BA.convert . hash256 . encode . toUnsigned $ tx
             in verifySig pk sig output
 
 standardRules :: [Rule Transaction]
@@ -96,8 +98,8 @@ processTransaction :: Node -> Transaction -> Node
 processTransaction node tx =
     let
         utxoSet = utxos node
-        spent = HS.fromList $ fst <$> inputs tx
-        created = HS.fromList $ outputs tx
+        spent = HS.fromList $ fst <$> sInputs tx
+        created = HS.fromList $ zipWith UTXO (repeat $ getTxid tx) (sOutputs tx)
         newUtxoSet = HS.union created $ HS.difference utxoSet spent
     in node { utxos = newUtxoSet }
 
@@ -114,4 +116,3 @@ allTransactionsValid node block =
                 then transactionSeriesValid (processTransaction node tx) txs
                 else False
 
-transactionsMatchMerkleRoot :: Rule Block

@@ -16,9 +16,6 @@ newtype BlockHash = BlockHash (Digest SHA256)
 instance Hashable BlockHash where
     hashWithSalt i bh = hashWithSalt i (BA.convert bh :: ByteString) 
 
-newtype MerkleRoot = MerkleRoot (Digest SHA256)
-    deriving (Eq, BA.ByteArrayAccess)
-
 data BlockHeader = BlockHeader
     { prev :: BlockHash
     , commitmentHash :: Digest SHA256

@@ -1,10 +1,15 @@
 module LambdaCoin.Node where
 
 import           Basement.Types.Word256
+import           Control.Monad
 import qualified Data.HashMap.Strict as HM
 import qualified Data.HashSet as HS
+import           Data.Maybe (catMaybes)
+import           Data.Serialize
+import           Data.Traversable
 import           Data.Word
 import           Network.Socket (Socket, SockAddr)
+import           Network.Socket.ByteString (send, recv)
 
 import LambdaCoin.Block
 import LambdaCoin.Transaction
@@ -26,6 +31,10 @@ data Msg = NewTx Transaction
          | GetPeers
          | SendPeers [Peer]
 
+instance Serialize Msg where
+    put m = _
+    get = _
+
 data Node = Node
     { chain :: BlockChain
     , peers :: [Peer]
@@ -33,3 +42,13 @@ data Node = Node
     , mempool :: HS.HashSet Transaction
     , difficulty :: Word256
     }
+
+processMsg :: Node -> Msg -> Maybe Node
+processMsg = _
+
+sendMsg :: Msg -> Node -> IO ()
+sendMsg msg node = do
+    let conns = catMaybes . fmap connection . peers $ node
+    for conns $ \conn -> do
+        send conn $ encode msg
+    return ()

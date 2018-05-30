@@ -91,14 +91,43 @@ one more piece of information: we need to provide the piece of information that 
 which in this case is a public key that corresponds with the hash specified in the destination, and a signature that proves
 we have the private key that these funds were encumbered to.
 
-### Transition
+## Keys and Signing
 
-So now that we have a transaction structure we actually have all we need to represent the authorization of the transfer
-of ownership of some currency. Great! Now the trouble with this is that we have no way to make sure that I don't take two
-different transactions that reference the same input and send each of them to two different people. This is known as the
-double spend problem. In order to deal with this, we have to assemble all of the transactions into a single ledger.
+So in order to use my private key to spend funds I need to be able to create a transaction and sign it. But what exactly
+am I signing? Well, the first thing I need to include in the signature is the inputs. Those, after all, are what I'm spending
+and therefore the rest of the network will require that I actually sign that input. The other piece I want to sign is
+the set of outputs. What a cryptographic signature does is "bake" or "finalize" a piece of data such that it can no longer
+be changed without breaking the signature. So I want the destination of the money to be finalized before signing.
+So to do this we need to make sure that our transaction that we are signing includes all that information. So I have
+included a structure here known as an unsigned transaction you'll notice is lacking all the public keys and signatures.
+So what we'll do is serialize that transaction, hash it and then sign the hash, after which we will include it in our
+transaction structure.
+
+## Peer to Peer Networking
+
+So we have signed this transaction. Now what do we do with it? Well we have to tell people about it otherwise no one
+will ever know that it happened. And since Bitcoin is a decentralized system there's no server to tell. So we need
+to tell anyone in the Bitcoin network that we know about that this happened. For that we need a peer to peer network.
+What we need to do is every time we want to send a transaction, we need to tell all our peers about this transaction,
+and consequently whenever we hear about a transaction we haven't seen before, we need to tell all our peers about that
+as well.
+
+## PICK UP HERE
+
+## Consensus Rules
+
+Now the heart of bitcoin is its consensus rules. This is what governs how the network actually works and allows you to
+spend or not spend. In order for your transaction to be valid it needs to not violate certain invariants in the system.
+The most obvious one is that the signatures need to be valid or you'd be able to spend someone else's coins
+
+## TODO
 
 ## Ledger Structure
+
+So now that we have a transaction structure we actually have all we need to represent state change with respect to the
+transfer of ownership of some currency. Great! Now the trouble with this is that we have no way to make sure that I don't
+take two different transactions that reference the same input and send each of them to two different people. This is known
+as the double spend problem. In order to deal with this, we have to assemble all of the transactions into a single ledger.
 
 The ledger's purpose is to ensure that all transactions are put into a canonical order. That is the order that they go
 into the ledger is agreed upon by all participants in the system. However, since we are operating in an environment where
@@ -113,8 +142,6 @@ This is what is known as a blockchain. If we view our ledger as a Directed-Acycl
 groups of these transactions into discrete synchronous chunks, then what we get is a chain of ledger units that contain
 transactions.
 
-## Consensus Rules
-
-## Peer to Peer Networking
-
 ## Proof of Work
+
+## TODO

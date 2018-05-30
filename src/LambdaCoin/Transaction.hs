@@ -73,12 +73,9 @@ data Transaction = Transaction
 
 instance Serialize Transaction where
     put tx = do
-        putWord8 0x11
         put $ sInputs tx
         put $ sOutputs tx
-    get = do
-        _ <- getWord8 >>= \m -> unless (m == 0x11) $ fail "Payload is not a Transaction"
-        Transaction <$> get <*> get
+    get = Transaction <$> get <*> get
 
 data UnsignedTx = UnsignedTx
     { uInputs :: [Input]
@@ -87,12 +84,9 @@ data UnsignedTx = UnsignedTx
 
 instance Serialize UnsignedTx where
     put u = do
-        putWord8 0x10
         put $ uInputs u
         put $ uOutputs u
-    get = do
-        _ <- getWord8 >>= \m -> unless (m == 0x10) $ fail "Payload is not an UnsignedTx"
-        UnsignedTx <$> get <*> get
+    get = UnsignedTx <$> get <*> get
 
 toUnsigned :: Transaction -> UnsignedTx
 toUnsigned Transaction{..} = UnsignedTx{..}

@@ -19,6 +19,8 @@ data BlockChain = BlockChain
     , tip :: BlockHash
     }
 
+newtype TxArchive = TxArchive { archive :: HM.HashMap BlockHash [Transaction] }
+
 data Peer = Peer
     { host :: SockAddr
     , connection :: Maybe Socket
@@ -38,6 +40,8 @@ processBlock node block = node
     , chain = newChain
     }
     where
-        newMemPool = _
-        newUtxos = _
-        newChain = _
+        newMemPool = _ -- prune mempool of transactions in the block
+        newUtxos = _ -- remove consumed UTXO's, add produced UTXO's
+        newChain = _ -- add block to hash map, if it builds on current tip update the tip, if it builds on something
+                     -- else compare it to the tip, if the fork reorganizes, rewind UTXO's to common history, and play
+                     -- UTXO's from new fork.

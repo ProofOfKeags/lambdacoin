@@ -9,11 +9,18 @@ import Data.ByteString.Char8 (unpack, pack)
 import System.IO
 import Control.Exception
 import Control.Concurrent
-import Control.Monad (when)
+import Control.Monad (forever, when)
 import Control.Monad.Fix (fix)
 import Data.Bool
+import Data.Serialize
 
 import LambdaCoin.Node
+import LambdaCoin.Message
+
+defaultNode :: Node
+defaultNode = Node
+    { 
+    }
 
 main :: IO ()
 main = do
@@ -22,19 +29,19 @@ main = do
     bind sock (SockAddrInet 8333 iNADDR_ANY)
     listen sock 5
     chan <- newChan
-    mainLoop sock chan
+    nodeState <- newMVar defaultNode
+    mainLoop nodeState sock chan
 
-mainLoop :: Socket -> Chan (SockAddr, Msg) -> IO ()
-mainLoop sock chan = do
+mainLoop :: MVar Node -> Socket -> Chan (SockAddr, Msg) -> IO ()
+mainLoop mNode sock chan = forever $ do
     conn <- accept sock
-    forkIO $ runConn conn chan 
-    mainLoop sock chan
+    forkIO $ runConn mNode conn chan 
 
-runConn :: (Socket, SockAddr) -> Chan (SockAddr, Msg) -> IO ()
-runConn (sock, addr) chan = do
+runConn :: MVar Node -> (Socket, SockAddr) -> Chan (SockAddr, Msg) -> IO ()
+runConn mNode (sock, addr) chan = do
     let writeConn msg = send sock (encode msg) >> return ()
         broadcast msg = writeChan chan (addr, msg)
-        readConn = unpack <$> (isConnected sock >>= bool (return "") (recv sock 0x10000))
+        readConn = isConnected sock >>= bool (return "") (recv sock 0x10000)
 
     myCopyOfChan <- dupChan chan
 
@@ -44,10 +51,20 @@ runConn (sock, addr) chan = do
         loop
 
     handle (\(SomeException _) -> return ()) $ fix $ \loop -> do
-        msg <- readConn
-        case msg of
+        rawMsg <- readConn
+        case rawMsg of
             "" -> killThread reader
-            _ -> processMsg >> broadcast msg >> loop
+            _ -> case decode rawMsg of
+                Left _ -> loop
+                Right msg -> do
+                    nodeState <- takeMVar mNode
+                    let processed = processMsg nodeState msg
+                    case processed of
+                        Nothing -> putMVar mNode nodeState
+                        Just nodeState' -> do
+                            putMVar mNode nodeState' 
+                            broadcast msg
+                            loop
 
 gracefulDisconnect :: Socket -> IO ()
 gracefulDisconnect sock = do

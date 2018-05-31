@@ -84,9 +84,9 @@ coinbaseRules =
 
 isValidTransaction :: [Rule Transaction] -> Rule Transaction
 isValidTransaction rules node =
-    foldl' (.&&.) (const True) $ ($ node) <$> rules
+    foldl' (<&&>) (const True) $ ($ node) <$> rules
     where 
-        (.&&.) = liftA2 (&&)
+        (<&&>) = liftA2 (&&)
 
 blockUnderSizeLimit :: Rule Block
 blockUnderSizeLimit _ block =
@@ -116,3 +116,12 @@ allTransactionsValid node block =
                 then transactionSeriesValid (processTransaction node tx) txs
                 else False
 
+isValidBlock :: Rule Block
+isValidBlock node =
+    foldl' (<&&>) (const True) $ ($ node) <$> rules
+    where
+        (<&&>) = liftA2 (&&)
+        rules = [
+            blockUnderSizeLimit,
+            allTransactionsValid -- TODO finish adding rules
+            ]

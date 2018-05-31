@@ -77,6 +77,9 @@ instance Serialize Transaction where
         put $ sOutputs tx
     get = Transaction <$> get <*> get
 
+instance Hashable Transaction where
+    hashWithSalt i tx = hashWithSalt i (BA.convert . hash256 . encode $ tx :: ByteString)
+
 data UnsignedTx = UnsignedTx
     { uInputs :: [Input]
     , uOutputs :: [Output]

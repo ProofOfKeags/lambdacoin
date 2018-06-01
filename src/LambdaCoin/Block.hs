@@ -1,9 +1,11 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 module LambdaCoin.Block where
 
+import Basement.Types.Word256 (Word256(..))
 import Control.Monad
 import Crypto.Hash
 import qualified Data.ByteArray as BA
@@ -14,6 +16,7 @@ import Data.Time
 import Data.Time.Clock.POSIX
 import Data.Word
 
+import LambdaCoin.Hash
 import LambdaCoin.TestData
 import LambdaCoin.Transaction
 
@@ -67,14 +70,32 @@ instance Serialize BlockHeader where
         nonce <- getWord32be
         return BlockHeader{..}
 
+difficulty :: Word256
+difficulty = Word256
+    0x00000FFFFFFFFFFF
+    0xFFFFFFFFFFFFFFFF
+    0xFFFFFFFFFFFFFFFF
+    0xFFFFFFFFFFFFFFFF
+
+mine :: BlockHeader -> BlockHeader
+mine bh = if (hash256asWord . hash256 . encode $ bh) < difficulty
+    then bh
+    else mine $ bh { nonce = nonce' }
+    where
+        nonce' = nonce bh + 1
+    
+genesisHeader :: BlockHeader
+genesisHeader = BlockHeader
+    { prev = hash256 $ ("Chancellor on brink of second bailout for banks" :: ByteString)
+    , commitmentHash = hash256 $ ("Who is Satoshi Nakamoto?" :: ByteString)
+    , timestamp = UTCTime (ModifiedJulianDay 54834) 0
+    , nonce = 0
+    }
+
+
 genesisBlock :: Block
 genesisBlock = Block
-    { header = BlockHeader
-        { prev = _
-        , commitmentHash = _
-        , timestamp = _
-        , nonce = _
-        }
+    { header = mine genesisHeader
     , coinbaseTx = Transaction
         { sInputs = []
         , sOutputs = [Output

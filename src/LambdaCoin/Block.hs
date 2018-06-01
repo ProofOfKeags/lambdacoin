@@ -1,5 +1,7 @@
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 module LambdaCoin.Block where
 
 import Control.Monad
@@ -12,9 +14,12 @@ import Data.Time
 import Data.Time.Clock.POSIX
 import Data.Word
 
+import LambdaCoin.TestData
 import LambdaCoin.Transaction
 
 type BlockHash = Digest SHA256
+instance Hashable BlockHash where
+    hashWithSalt i bh = hashWithSalt i $ (BA.convert bh :: ByteString)
 type CommitmentHash = Digest SHA256
 
 data BlockHeader = BlockHeader
@@ -25,23 +30,17 @@ data BlockHeader = BlockHeader
     }
 
 data Block = Block
-    { blockhash :: BlockHash
-    , header :: BlockHeader
+    { header :: BlockHeader
     , coinbaseTx :: Transaction
     , standardTxs :: [Transaction]
     }
 
 instance Serialize Block where
     put b = do
-        putByteString . BA.convert . blockhash $ b
         put $ header b
         put $ coinbaseTx b
         put $ standardTxs b
     get = do
-        blockhash' <- digestFromByteString <$> getByteString 32
-        blockhash <- case blockhash' of
-            Nothing -> mzero
-            Just x -> return x
         header <- get
         coinbaseTx <- get
         standardTxs <- get
@@ -67,3 +66,22 @@ instance Serialize BlockHeader where
         timestamp <- posixSecondsToUTCTime . fromIntegral <$> getWord64be
         nonce <- getWord32be
         return BlockHeader{..}
+
+genesisBlock :: Block
+genesisBlock = Block
+    { header = BlockHeader
+        { prev = _
+        , commitmentHash = _
+        , timestamp = _
+        , nonce = _
+        }
+    , coinbaseTx = Transaction
+        { sInputs = []
+        , sOutputs = [Output
+            { idx = 0
+            , dest = pkHash
+            , value = 50 * 100000000
+            }]
+        }
+    , standardTxs = []
+    }

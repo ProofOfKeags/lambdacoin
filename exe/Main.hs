@@ -17,11 +17,6 @@ import Data.Serialize
 import LambdaCoin.Node
 import LambdaCoin.Message
 
-defaultNode :: Node
-defaultNode = Node
-    { 
-    }
-
 main :: IO ()
 main = do
     sock <- socket AF_INET Stream 0

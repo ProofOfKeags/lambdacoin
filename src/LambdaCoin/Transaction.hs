@@ -118,3 +118,6 @@ signTx keys unsigned
 
 getTxid :: Transaction -> Txid
 getTxid = hash256 . encode
+
+txUtxos :: Transaction -> [UTXO]
+txUtxos tx = zipWith UTXO (repeat $ getTxid tx) (sOutputs tx)

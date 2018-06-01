@@ -55,6 +55,11 @@ space.
 The remainder of this talk will assume that you know the basic affordances of cryptographic primitives such as hashing
 and public key cryptography, as well as a Fire Lubline™ proficiency with Haskell.
 
+When I was originally proposing this talk I had the naive hope that we could touch at least a little bit on everything
+that goes into a minimum viable cryptocurrency. But I was terribly wrong, so there are certain things we will have to
+skip over the details of, but I'll do my best to mention where I'm skipping over so at least you know there are dark
+corners to be investigated here.
+
 ## Transaction Structure
 
 So the type of ledger we are going to be building is what is referred to as a UTXO based ledger. This differs from an
@@ -103,6 +108,9 @@ included a structure here known as an unsigned transaction you'll notice is lack
 So what we'll do is serialize that transaction, hash it and then sign the hash, after which we will include it in our
 transaction structure.
 
+The library that will be doing all of the heavy lifting here is CryptoNite. This is an excellent library that while not
+suitable for all purposes, will do just fine for the vast majority of cryptography needs you have. 
+
 ## Peer to Peer Networking
 
 So we have signed this transaction. Now what do we do with it? Well we have to tell people about it otherwise no one
@@ -112,7 +120,8 @@ What we need to do is every time we want to send a transaction, we need to tell 
 and consequently whenever we hear about a transaction we haven't seen before, we need to tell all our peers about that
 as well.
 
-## PICK UP HERE
+To tell all our peers about stuff we need a way to take the structures we've made and figure out how to serialize them
+over the network such that other nodes can decode them and get the same structure on the other side. We will need to 
 
 ## Consensus Rules
 

@@ -42,7 +42,7 @@ over.
 
 With that in mind, the meat of this talk is a more practical introduction to building consensus software in Haskell
 specifically. Why Haskell, because it's the language with the most statically enforced properties that I actually know.
-If I was proficient in Idris, and it had a more mature ecosystem, perhaps I would have chosen that for this talk.
+If I was proficient in Idris, and it had a more mature ecosystem, perhaps I may have chosen that for this talk.
 
 When I was learning Haskell, it didn't take long for me to become fascinated with the level of rigor that it enforces
 on your understanding of your problem domain. But for the longest time I had trouble imagining how to solve more

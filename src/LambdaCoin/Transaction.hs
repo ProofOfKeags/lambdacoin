@@ -1,6 +1,7 @@
 {-# LANGUAGE RecordWildCards #-}
 module LambdaCoin.Transaction where
 
+import           Control.Applicative (liftA2)
 import           Control.Monad (unless)
 import           Crypto.Hash
 import           Crypto.Random
@@ -15,6 +16,7 @@ import           Data.Word
 import LambdaCoin.Hash
 import LambdaCoin.Keys
 
+-- DATATYPES
 type Txid = Digest SHA256
 type Index = Word32
 type PubKeyHash = Digest RIPEMD160
@@ -23,13 +25,28 @@ type Value = Word64
 type Input = UTXO
 type SignedInput = (Input, (PublicKey, Signature))
 
+data Output = Output
+    { idx :: Index
+    , dest :: PubKeyHash
+    , value :: Value
+    } deriving (Eq, Show)
+
+data UnsignedTx = UnsignedTx
+    { uInputs :: [Input]
+    , uOutputs :: [Output]
+    } deriving (Eq, Show)
+
+data Transaction = Transaction
+    { sInputs :: [SignedInput]
+    , sOutputs :: [Output]
+    } deriving (Eq, Show)
+
 data UTXO = UTXO
     { txid :: Txid
     , output :: Output
-    }
-    deriving (Eq, Show)
+    } deriving (Eq, Show)
 
-
+-- INSTANCES
 instance Hashable UTXO where
     hashWithSalt i utxo = hashWithSalt i ((BA.convert $ txid utxo :: ByteString), idx . output $ utxo)
 
@@ -45,13 +62,6 @@ instance Serialize UTXO where
         output <- get
         return UTXO{..}
 
-data Output = Output
-    { idx :: Index
-    , dest :: PubKeyHash
-    , value :: Value
-    }
-    deriving (Eq, Show)
-
 instance Serialize Output where
     put o = do
         putWord32be $ idx o
@@ -66,30 +76,22 @@ instance Serialize Output where
         value <- getWord64be
         return Output{..}
 
-data Transaction = Transaction
-    { sInputs :: [SignedInput]
-    , sOutputs :: [Output]
-    } deriving (Eq, Show)
 
 instance Serialize Transaction where
     put tx = do
         put $ sInputs tx
         put $ sOutputs tx
-    get = Transaction <$> get <*> get
+    get = liftA2 Transaction get get
 
 instance Hashable Transaction where
     hashWithSalt i tx = hashWithSalt i (BA.convert . hash256 . encode $ tx :: ByteString)
 
-data UnsignedTx = UnsignedTx
-    { uInputs :: [Input]
-    , uOutputs :: [Output]
-    } deriving (Eq, Show)
 
 instance Serialize UnsignedTx where
     put u = do
         put $ uInputs u
         put $ uOutputs u
-    get = UnsignedTx <$> get <*> get
+    get = liftA2 UnsignedTx get get
 
 toUnsigned :: Transaction -> UnsignedTx
 toUnsigned Transaction{..} = UnsignedTx{..}

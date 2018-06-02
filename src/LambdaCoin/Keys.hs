@@ -34,10 +34,10 @@ toPubCN :: PublicKey -> CN.PublicKey
 toPubCN (PublicKey x y) = CN.PublicKey curve $ CN.Point (toInteger x) (toInteger y)
 
 toPrivCN :: PrivateKey -> CN.PrivateKey
-toPrivCN (PrivateKey n) = CN.PrivateKey (CN.getCurveByName CN.SEC_p256k1) (toInteger n)
+toPrivCN (PrivateKey n) = CN.PrivateKey curve (toInteger n)
 
 fromSigCN :: CN.Signature -> Signature
-fromSigCN = liftA2 Signature (fromInteger . CN.sign_r) (fromInteger . CN.sign_s)
+fromSigCN sig = Signature (fromInteger . CN.sign_r $ sig) (fromInteger . CN.sign_s $ sig)
 
 toSigCN :: Signature -> CN.Signature
 toSigCN (Signature r s) = CN.Signature (toInteger r) (toInteger s)

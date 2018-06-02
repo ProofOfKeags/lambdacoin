@@ -41,9 +41,6 @@ noDuplicateOutputIndices _ tx =
 atLeastOneInput :: Rule Transaction
 atLeastOneInput _ tx = not . null $ sInputs tx
 
-noInputs :: Rule Transaction
-noInputs _ = null . sInputs
-
 atLeastOneOutput :: Rule Transaction
 atLeastOneOutput _ tx = not . null $ sOutputs tx
 
@@ -75,6 +72,9 @@ standardRules =
     , pubkeysMatchHashes
     , signaturesAreValid
     ]
+
+noInputs :: Rule Transaction
+noInputs _ = null . sInputs
 
 coinbaseRules :: [Rule Transaction]
 coinbaseRules =

@@ -108,7 +108,7 @@ signTx keys unsigned
             Nothing -> Nothing
             Just sInputs -> Just $ Transaction{..}
     where
-        message = BA.convert . hash256 . encode $ unsigned :: ByteString
+        message = encode unsigned
         sigs = fmap sequenceA . for (zip keys $ uInputs unsigned) $ \(key, u) -> do
             n <- decode <$> getRandomBytes 32
             return $ case n of

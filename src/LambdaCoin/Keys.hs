@@ -53,6 +53,9 @@ derivePubKey (PrivateKey n) = PublicKey (fromInteger x) (fromInteger y)
     where
         (CN.Point x y) = CN.generateQ curve (toInteger n)
 
+pubKeyHash :: PublicKey -> Digest RIPEMD160
+pubKeyHash = hash160 . encode
+
 instance Serialize PublicKey where
     put (PublicKey x y) = put x >> put y
     get = liftA2 PublicKey get get
@@ -60,6 +63,3 @@ instance Serialize PublicKey where
 instance Serialize Signature where
     put (Signature r s) = put r >> put s
     get = liftA2 Signature get get
-
-pubKeyHash :: PublicKey -> Digest RIPEMD160
-pubKeyHash = hash160 . encode

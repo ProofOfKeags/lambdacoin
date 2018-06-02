@@ -25,17 +25,17 @@ instance Hashable BlockHash where
     hashWithSalt i bh = hashWithSalt i $ (BA.convert bh :: ByteString)
 type CommitmentHash = Digest SHA256
 
+data Block = Block
+    { header :: BlockHeader
+    , coinbaseTx :: Transaction
+    , standardTxs :: [Transaction]
+    }
+
 data BlockHeader = BlockHeader
     { prev :: BlockHash
     , commitmentHash :: CommitmentHash
     , timestamp :: UTCTime
     , nonce :: Word32
-    }
-
-data Block = Block
-    { header :: BlockHeader
-    , coinbaseTx :: Transaction
-    , standardTxs :: [Transaction]
     }
 
 instance Serialize Block where
@@ -48,7 +48,6 @@ instance Serialize Block where
         coinbaseTx <- get
         standardTxs <- get
         return Block{..}
-
 
 instance Serialize BlockHeader where
     put bh = do
@@ -69,40 +68,3 @@ instance Serialize BlockHeader where
         timestamp <- posixSecondsToUTCTime . fromIntegral <$> getWord64be
         nonce <- getWord32be
         return BlockHeader{..}
-
-difficulty :: Word256
-difficulty = Word256
-    0x00000FFFFFFFFFFF
-    0xFFFFFFFFFFFFFFFF
-    0xFFFFFFFFFFFFFFFF
-    0xFFFFFFFFFFFFFFFF
-
-mine :: BlockHeader -> BlockHeader
-mine bh = if (hash256asWord . hash256 . encode $ bh) < difficulty
-    then bh
-    else mine $ bh { nonce = nonce' }
-    where
-        nonce' = nonce bh + 1
-    
-genesisHeader :: BlockHeader
-genesisHeader = BlockHeader
-    { prev = hash256 $ ("Chancellor on brink of second bailout for banks" :: ByteString)
-    , commitmentHash = hash256 $ ("Who is Satoshi Nakamoto?" :: ByteString)
-    , timestamp = UTCTime (ModifiedJulianDay 54834) 0
-    , nonce = 0
-    }
-
-
-genesisBlock :: Block
-genesisBlock = Block
-    { header = mine genesisHeader
-    , coinbaseTx = Transaction
-        { sInputs = []
-        , sOutputs = [Output
-            { idx = 0
-            , dest = pkHash
-            , value = 50 * 100000000
-            }]
-        }
-    , standardTxs = []
-    }
